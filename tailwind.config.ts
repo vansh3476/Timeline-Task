@@ -16,6 +16,7 @@ const config: Config = {
   			foreground: 'hsl(var(--foreground))',
 			border:'#393939',
 			micBackground:'#5568FE',
+			errorBackground:'#F17676',
 
   			card: {
   				DEFAULT: 'hsl(var(--card))',
@@ -45,6 +46,7 @@ const config: Config = {
   				DEFAULT: 'hsl(var(--destructive))',
   				foreground: 'hsl(var(--destructive-foreground))'
   			},
+			
   			// border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
@@ -66,6 +68,9 @@ const config: Config = {
   				ring: 'hsl(var(--sidebar-ring))'
   			}
   		},
+		fontFamily: {
+            lato:  ['var(--font-lato)', 'sans-serif'],
+        },
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

@@ -11,14 +11,13 @@ A React-based interactive timeline component for visualizing participant activit
   - ⚠️ Errors (Red)
   - 🖥️ Screen sharing (Purple)
   - Join/Leave markers (Gray)
-- **Responsive Design**: Adapts to different screen sizes
 - **Dark Theme**: Matches the provided Figma design
 - **Toggle Controls**: Show/hide participant timeline view
 
 ## Technical Implementation
 
 ### Architecture
-- **Framework**: Next.js 14 with React 18
+- **Framework**: React 19
 - **Styling**: Tailwind CSS for responsive design
 - **Icons**: Lucide React for consistent iconography
 - **TypeScript**: Full type safety for data structures
@@ -58,26 +57,22 @@ The component expects JSON data with the following structure:
 ## Setup Instructions
 
 1. **Install Dependencies**:
-   \`\`\`bash
+   \`\`\`
    npm install
    \`\`\`
 
 2. **Run Development Server**:
-   \`\`\`bash
+   \`\`\`
    npm run dev
    \`\`\`
 
-3. **Build for Production**:
-   \`\`\`bash
-   npm run build
-   \`\`\`
 
 ## Usage
 
 Import and use the SessionTimeline component:
 
-\`\`\`tsx
-import SessionTimeline from '@/components/session-timeline'
+\`\`\`
+import SessionTimeline from '/components/session-timeline'
 
 const sessionData = {
   // Your JSON data here
@@ -100,7 +95,7 @@ export default function App() {
 - **Camera Events**: Blue circles with camera icon  
 - **Error Events**: Red circles with warning icon
 - **Screen Share**: Purple circles with monitor icon
-- **Join/Leave**: Gray circles with J/L text
+- **Join/Leave**: Gray circles with J
 
 ### Interactivity
 - Hover tooltips showing event details and timestamps
@@ -116,23 +111,10 @@ export default function App() {
 
 \`\`\`
 components/
-├── session-timeline.tsx    # Main timeline component
+├── session-timeline   # Main timeline component
 ├── ui/
-│   └── card.tsx           # UI card component
+│   └── card          # UI card component
 app/
-├── page.tsx               # Main page with sample data
+├── page              # Main page with sample data
 └── globals.css            # Global styles
 \`\`\`
-
-## Performance Considerations
-
-- Memoized time marker calculations
-- Efficient event positioning algorithms
-- Minimal re-renders with proper React patterns
-- Optimized for sessions with multiple participants
-
-## Browser Compatibility
-
-- Modern browsers supporting ES6+
-- Responsive design for mobile and desktop
-- Tested on Chrome, Firefox, Safari, Edge

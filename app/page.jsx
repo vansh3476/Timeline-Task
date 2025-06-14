@@ -68,7 +68,12 @@ const sampleData = {
             end: "2024-04-02T11:34:32.410Z",
           },
         ],
-        screenShare: [],
+        screenShare: [
+            {
+            start: "2024-04-02T11:45:00.468Z",
+            end: "2024-04-02T11:47:52.094Z",
+          },
+        ],
         screenShareAudio: [],
       },
       timelog: [
@@ -102,12 +107,13 @@ const sampleData = {
             end: "2024-04-02T11:47:52.094Z",
           },
         ],
-        screenShare: [],
+        screenShare: [
+        ],
         screenShareAudio: [],
       },
       timelog: [
         {
-          start: "2024-04-02T11:45:53.142Z",
+          start: "2024-04-02T11:45:52.142Z",
           end: "2024-04-02T11:47:52.086Z",
         },
       ],

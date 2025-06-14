@@ -2,7 +2,8 @@
 import React, { useState, useMemo } from "react";
 import { Camera, Mic, AlertTriangle, Monitor } from "lucide-react";
 import { Card } from "../components/ui/card";
-import { ClipboardIcon, ErrorIcon, LeaveIcon, MicIcon, VideoIcon } from "./ui/icon";
+import { ClipboardIcon, ErrorIcon, Frame64Icon, LeaveIcon, MicIcon, MonitorIcon, VideoIcon } from "./ui/icon";
+import { getFormatedDate } from "../lib/utils";
 
 export default function SessionTimeline({ data }) {
   const [tooltip, setTooltip] = useState({
@@ -12,23 +13,29 @@ export default function SessionTimeline({ data }) {
     visible: false,
   });
   const [showParticipantTimeline, setShowParticipantTimeline] = useState(true);
-
   const sessionStart = new Date(data.start);
   const sessionEnd = new Date(data.end);
   const sessionDuration = sessionEnd.getTime() - sessionStart.getTime();
 
   const timeMarkers = useMemo(() => {
-    const markers = [];
+    const markers = [{
+    "time": "",
+    "position": 0
+}];
     const totalMinutes = Math.ceil(sessionDuration / (1000 * 60));
     const interval = Math.max(1, Math.floor(totalMinutes / 10));
 
-    for (let i = 0; i <= totalMinutes; i += interval) {
+    for (let i = 1; i <= totalMinutes ; i += interval) {
       const time = new Date(sessionStart.getTime() + i * 60 * 1000);
       markers.push({
-        time: time.getHours() + ':' + time.getMinutes(),
-        position: (i / totalMinutes) * 100,
+        time: time.getUTCHours() + ':' + time.getUTCMinutes(),
+        position: (i / totalMinutes) * 100 - 2.5,
       });
     }
+    markers.push({
+    time:"",
+    position:markers[markers.length-1].position + 5
+    })
     return markers;
   }, [sessionStart, sessionDuration]);
 
@@ -69,7 +76,6 @@ export default function SessionTimeline({ data }) {
       const startPos = getPositionFromTime(session.start);
       const endPos = getPositionFromTime(session.end);
 
-      // Add active session segment
       segments.push({
         type: "active",
         startPos,
@@ -77,7 +83,6 @@ export default function SessionTimeline({ data }) {
         session,
       });
 
-      // Add gap segment if there's a next session
       if (i < sortedTimelog.length - 1) {
         const nextSession = sortedTimelog[i + 1];
         const gapStart = getPositionFromTime(session.end);
@@ -107,19 +112,13 @@ export default function SessionTimeline({ data }) {
 
     return (
       <div className="relative mb-6">
-        {/* Participant Info */}
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex flex-col bg-backgroundTimeline z-10">
-            <div className="text-white font-medium text-sm">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex flex-col bg-backgroundTimeline z-10 pt-3">
+            <div className="text-white text-base leading-[100%] tracking-[0%] font-lato">
               {participant.name} ({participant.participantId})
             </div>
             <div className="text-xs text-gray-400 mt-0.5">
-              {new Date(participantStart).toLocaleDateString("en-GB")},{" "}
-              {new Date(participantStart).toLocaleTimeString("en-US", {
-                hour12: false,
-                hour: "2-digit",
-                minute: "2-digit",
-              })}{" "}
+              {getFormatedDate(participantStart)},{" "}
               | Duration {formatDuration(participantStart, participantEnd)}
             </div>
           </div>
@@ -128,15 +127,10 @@ export default function SessionTimeline({ data }) {
           </button>
         </div>
 
-        {/* Timeline Bar with Grey Background */}
         <div className="relative h-4 overflow-visible">
-          {/* Grey background timeline - full width */}
-
-          {/* Timeline segments */}
           {timelineSegments.map((segment, index) => (
             <div key={index}>
               {segment.type === "active" ? (
-                /* Active session - blue line */
                 <div
                   className="absolute top-1/2 transform -translate-y-1/2 h-1 bg-micBackground"
                   style={{
@@ -148,9 +142,9 @@ export default function SessionTimeline({ data }) {
                       e,
                       `Session: ${new Date(
                         segment.session.start
-                      ).toLocaleTimeString()} - ${new Date(
+                      ).toISOString()} - ${new Date(
                         segment.session.end
-                      ).toLocaleTimeString()}`
+                      ).toISOString()}`
                     )
                   }
                   onMouseLeave={hideTooltip}
@@ -172,35 +166,32 @@ export default function SessionTimeline({ data }) {
             <React.Fragment key={`markers-${index}`}>
               
               <div
-                className="absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white border-2 border-gray-800"
+                className="absolute top-1/2 transform -translate-y-1/2 w-[24px] h-[24px] bg-gray-600 rounded-full flex items-center justify-center text-xs text-white"
                 style={{
                   left: `${getPositionFromTime(session.start)}%`,
-                  marginLeft: "-10px",
                   zIndex: 10,
                 }}
                 onMouseEnter={(e) =>
                   showTooltip(
                     e,
-                    `Joined: ${new Date(session.start).toLocaleTimeString()}`
+                    `Joined: ${new Date(session.start).toISOString()}`
                   )
                 }
                 onMouseLeave={hideTooltip}
               >
-                <span className="text-xs font-bold">J</span>
+                <MonitorIcon  />
               </div>
 
-              {/* Leave marker */}
               <div
-                className="absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white border-2 border-gray-800"
+                className="absolute top-1/2 transform -translate-y-1/2 w-[24px] h-[24px] bg-gray-600 rounded-full flex items-center justify-center text-xs text-white"
                 style={{
                   left: `${getPositionFromTime(session.end)}%`,
-                  marginLeft: "-10px",
                   zIndex: 10,
                 }}
                 onMouseEnter={(e) =>
                   showTooltip(
                     e,
-                    `Left: ${new Date(session.end).toLocaleTimeString()}`
+                    `Left: ${new Date(session.end).toISOString()}`
                   )
                 }
                 onMouseLeave={hideTooltip}
@@ -210,22 +201,20 @@ export default function SessionTimeline({ data }) {
             </React.Fragment>
           ))}
 
-          {/* Mic events */}
           {participant.events.mic.map((event, index) => (
             <div
               key={`mic-${index}`}
-              className="absolute w-[16px] h-[16px] top-1/2 p-0.5 transform -translate-y-1/2  bg-micBackground rounded-sm flex items-center justify-center text-xs font-bold text-white"
+              className="absolute w-[22px] h-[22px] top-1/2 p-0.5 transform -translate-y-1/2  bg-micBackground rounded-md flex items-center justify-center text-xs font-bold text-white"
               style={{
                 left: `${getPositionFromTime(event.start)}%`,
-                marginLeft: "-10px",
                 zIndex: 10,
               }}
               onMouseEnter={(e) =>
                 showTooltip(
                   e,
-                  `Mic On: ${new Date(event.start).toLocaleTimeString()}${
+                  `Mic On: ${new Date(event.start).toISOString()}${
                     event.end
-                      ? ` - ${new Date(event.end).toLocaleTimeString()}`
+                      ? ` - ${new Date(event.end).toISOString()}`
                       : ""
                   }`
                 )
@@ -237,22 +226,20 @@ export default function SessionTimeline({ data }) {
             </div>
           ))}
 
-          {/* Webcam events */}
           {participant.events.webcam.map((event, index) => (
             <div
               key={`webcam-${index}`}
-              className="absolute top-1/2 transform -translate-y-1/2 w-[16px] h-[16px] bg-micBackground rounded-sm flex items-center justify-center text-xs font-bold p-0.5 text-white"
+              className="absolute top-1/2 transform -translate-y-1/2 w-[22px] h-[22px] bg-micBackground rounded-md flex items-center justify-center text-xs font-bold p-0.5 text-white"
               style={{
                 left: `${getPositionFromTime(event.start)}%`,
-                marginLeft: "-10px",
                 zIndex: 10,
               }}
               onMouseEnter={(e) =>
                 showTooltip(
                   e,
-                  `Camera On: ${new Date(event.start).toLocaleTimeString()}${
+                  `Camera On: ${new Date(event.start).toISOString()}${
                     event.end
-                      ? ` - ${new Date(event.end).toLocaleTimeString()}`
+                      ? ` - ${new Date(event.end).toISOString()}`
                       : ""
                   }`
                 )
@@ -263,11 +250,10 @@ export default function SessionTimeline({ data }) {
             </div>
           ))}
 
-          {/* Error events */}
           {participant.events.errors?.map((error, index) => (
             <div
               key={`error-${index}`}
-              className="absolute top-1/2 transform -translate-y-1/2 w-[16px] h-[16px] rounded-full flex items-center justify-center  text-xs font-bold text-white"
+              className="absolute top-1/2 transform -translate-y-1/2 w-[14px] h-[14px] bg-errorBackground rounded-full flex items-center justify-center  text-xs font-bold text-white"
               style={{
                 left: `${getPositionFromTime(error.start)}%`,
                 marginLeft: "-10px",
@@ -278,7 +264,7 @@ export default function SessionTimeline({ data }) {
                   e,
                   `Error: ${error.message} at ${new Date(
                     error.start
-                  ).toLocaleTimeString()}`
+                  ).toISOString()}`
                 )
               }
               onMouseLeave={hideTooltip}
@@ -287,11 +273,10 @@ export default function SessionTimeline({ data }) {
             </div>
           ))}
 
-          {/* Screen share events */}
           {participant.events.screenShare.map((event, index) => (
             <div
               key={`screen-${index}`}
-              className="absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center border-2 border-white text-xs font-bold text-white"
+              className="absolute top-1/2 transform -translate-y-1/2 w-[22px] h-[22px] bg-micBackground rounded-full flex items-center justify-center text-xs font-bold text-white"
               style={{
                 left: `${getPositionFromTime(event.start)}%`,
                 marginLeft: "-10px",
@@ -300,16 +285,16 @@ export default function SessionTimeline({ data }) {
               onMouseEnter={(e) =>
                 showTooltip(
                   e,
-                  `Screen Share: ${new Date(event.start).toLocaleTimeString()}${
+                  `Screen Share: ${new Date(event.start).toISOString()}${
                     event.end
-                      ? ` - ${new Date(event.end).toLocaleTimeString()}`
+                      ? ` - ${new Date(event.end).toISOString()}`
                       : ""
                   }`
                 )
               }
               onMouseLeave={hideTooltip}
             >
-              <Monitor className="w-2.5 h-2.5" />
+              <Frame64Icon className="w-2.5 h-2.5" />
             </div>
           ))}
         </div>
@@ -320,11 +305,10 @@ export default function SessionTimeline({ data }) {
   return (
     <div className="w-full max-w-7xl mx-auto">
       <Card className="bg-background">
-        {/* Header */}
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center space-x-2">
             <ClipboardIcon />
-            <h2 className="text-white text-lg font-medium">
+            <h2 className="text-white font-lato font-bold text-sm leading-[100%] tracking-[0%]">
               Participants wise Session Timeline
             </h2>
           </div>
@@ -349,21 +333,21 @@ export default function SessionTimeline({ data }) {
           </div>
         </div>
 
-        {/* Time markers with grey background */}
         <div className="relative border-b border-border bg-gray-600 rounded-t-lg" style={{background:'#181818'}}>
-          <div className="flex justify-between text-xs text-gray-400 px-4 py-3" style={{border:'none'}}>
+          <div className="flex justify-between text-xs text-gray-400 px-4 py-3 h-[37px]" style={{border:'none'}}>
             {timeMarkers.map((marker, index) => (
-              <div key={index} className="text-center">
+              <div key={index} className="absolute top-[27%] text-center" style={{
+                left: `${marker.position - 1.5}%`,
+                zIndex: 0,
+              }}>
                 {marker.time}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Main timeline area with background */}
         <div className="relative bg-backgroundTimeline rounded-b-lg">
-          {/* Vertical grid lines extending through timeline */}
-          {timeMarkers.map((marker, index) => (
+          {timeMarkers.flatMap((marker, index) => !marker.time ? []:(
             <div
               key={`main-grid-${index}`}
               className="absolute top-0 bottom-0 w-px bg-gray-600 opacity-30"
@@ -374,7 +358,6 @@ export default function SessionTimeline({ data }) {
             />
           ))}
 
-          {/* Participants */}
           {showParticipantTimeline && (
             <div className="relative  py-2">
               {data.participantArray.map((participant,index) => (
@@ -382,7 +365,7 @@ export default function SessionTimeline({ data }) {
                 <div key={participant.participantId} className="relative z-10 px-4">
                   {renderParticipantTimeline(participant)}
                 </div>
-                          <div className={` mb-3 h-[1px] bg-gray-600 w-full`} />
+                          <div className={`mt-6 h-[1px] bg-gray-600 w-full`} />
 
                 </>
               ))}
@@ -392,7 +375,6 @@ export default function SessionTimeline({ data }) {
 
       </Card>
 
-      {/* Tooltip */}
       {tooltip.visible && (
         <div
           className="fixed z-50 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg pointer-events-none"
