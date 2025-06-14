@@ -1,4 +1,5 @@
 import SessionTimeline from "../components/session-timeline"
+import '../styles/globals.css'
 
 const sampleData = {
   meetingId: "k7tb-chj6-9sjp",
